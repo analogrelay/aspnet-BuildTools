@@ -1,0 +1,33 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+  "publishOptions": {
+    "include": [
+      "../Microsoft.AspNetCore.Build/Microsoft.AspNetCore.Build.tasks",
+      "msbuild/**/*.*"
+    ]
+  },
+
+  "dependencies": {
+    "MSBuild": "0.1.0-preview-00028-160627",
+    "Microsoft.Build": "0.1.0-preview-00028-160627",
+    "Microsoft.Build.Framework": "0.1.0-preview-00028-160627",
+    "Microsoft.Build.Targets": "0.1.0-preview-00028-160627",
+    "Microsoft.Build.Tasks.Core": "0.1.0-preview-00028-160627",
+    "Microsoft.Build.Utilities.Core": "0.1.0-preview-00028-160627",
+
+    "Microsoft.AspNetCore.Build": { "target": "project" },
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    }
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "dnxcore50"
+    }
+  }
+}
