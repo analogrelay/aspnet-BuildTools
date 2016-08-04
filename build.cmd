@@ -1,0 +1,1 @@
+@powershell -NoProfile -NoLogo -ExecutionPolicy unrestricted -Command "& '%~dp0scripts\build-repo.ps1' %*; exit $LASTEXITCODE"

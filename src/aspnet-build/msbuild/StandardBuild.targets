@@ -2,7 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Defines the ASP.NET Core Standard Build (a standard pattern for building the ASP.NET Core Repositories) -->
 
-  <Import Project="$(AspNetBuildDirectory)/Microsoft.AspNetCore.Build/Microsoft.AspNetCore.Build.tasks" />
+  <Import Project="$(AspNetBuildToolsDirectory)/Microsoft.AspNetCore.Build/Microsoft.AspNetCore.Build.tasks" />
 
   <!-- The order of this technically doesn't matter but it's nice to keep them in the order they'll run :) -->
   <Import Project="$(MSBuildThisFileDirectory)/Clean.targets" />
