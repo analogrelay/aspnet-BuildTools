@@ -2,6 +2,7 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Put targets attached to the 'Initialize' phase of the Standard Lifecycle here. -->
 
+  <!-- Properties/Items - Put targets in the Targets section below -->
   <PropertyGroup>
     <!-- "Private" helper properties" -->
     <_StartYear>$([System.DateTime]::Parse($(ProductStartDate)).Year)</_StartYear>
@@ -60,6 +61,17 @@
     <UnresolvedProjects Include="$(SamplesDir)/**/project.json" />
   </ItemGroup>
 
+  <!-- Targets -->
+  <PropertyGroup>
+    <InitializeDependsOn>
+      $(InitializeDependsOn);
+      CollectCommitHash;
+      DetectOSPlatform;
+      GatherProjectMetadata;
+      DisplayStartBuildMessage
+    </InitializeDependsOn>
+  </PropertyGroup>
+
   <Target Name="CollectCommitHash">
     <GetGitCommitInfo RepositoryRoot="$(RepositoryDir)" WarnOnError="true">
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
@@ -87,14 +99,7 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup>
-    <InitializeBuildTargets>
-      CollectCommitHash;
-      DetectOSPlatform;
-      GatherProjectMetadata;
-    </InitializeBuildTargets>
-  </PropertyGroup>
-  <Target Name="InitializeBuild" DependsOnTargets="$(InitializeBuildTargets)" BeforeTargets="Initialize">
+  <Target Name="DisplayStartBuildMessage">
     <Message Text="Starting build $(BuildSemanticVersion) of commit $(CommitHash) (on branch '$(GitBranch)') within $(BuildHost)" Importance="high" />
   </Target>
 

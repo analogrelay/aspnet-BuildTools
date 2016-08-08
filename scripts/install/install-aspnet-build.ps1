@@ -33,6 +33,14 @@ $ErrorActionPreference = "Stop"
 
 $PackageNamePattern = "aspnet-build\.(.*)\.zip"
 
+if(!$SourceFeed) {
+    $SourceFeed = "https://anurseaspnetbuildtools.blob.core.windows.net/aspnetbuildpackages"
+}
+
+if($SourceFeed.EndsWith("/")) {
+    $SourceFeed = $SourceFeed.Substring(0, $SourceFeed.Length - 1)
+}
+
 if(!$InstallationDirectory) {
     $InstallationDirectory = Join-Path $env:LOCALAPPDATA "Microsoft"
     $InstallationDirectory = Join-Path $InstallationDirectory "aspnet-build"
@@ -163,7 +171,8 @@ if($List) {
     } elseif($PSCmdlet.ParameterSetName -eq "InstallFromUrl") {
         InstallFromUrl
     } elseif($PSCmdlet.ParameterSetName -eq "InstallFromFeed") {
-        
+        $SourceUrl = "$SourceFeed/aspnet-build.$BuildToolsBranch.zip"
+        InstallFromUrl
     } else {
         throw "Not yet implemented"
     }

@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Put targets attached to the 'Compile' phase of the Standard Lifecycle here. -->
+  <PropertyGroup>
+    <CompileDependsOn>
+      $(CompileDependsOn);
+      DotNetBuild;
+      CopyBuildOutput
+    </CompileDependsOn>
+  </PropertyGroup>
 
-  <Target Name="DotNetBuild" BeforeTargets="Compile">
+  <Target Name="DotNetBuild">
     <ItemGroup>
       <_ToBuild Include="@(Projects)" Condition="'$(BuildSourceOnly)' != 'true' Or '%(Projects.ProjectGroup)' == 'src'" />
     </ItemGroup>
@@ -19,7 +26,7 @@
       WorkingDirectory="$(RepositoryDir)" />
     <Delete Files="%(_ToBuild.GeneratedBuildInfoFile)" Condition="Exists(%(_ToBuild.GeneratedBuildInfoFile))" />
   </Target>
-  <Target Name="CopyBuildOutput" AfterTargets="DotNetBuild">
+  <Target Name="CopyBuildOutput">
     <ItemGroup>
       <_ToCopy Include="%(Projects.ProjectDir)bin\**" Condition="'%(Projects.ProjectGroup)' == 'src'">
         <ProjectName>%(Projects.ProjectName)</ProjectName>

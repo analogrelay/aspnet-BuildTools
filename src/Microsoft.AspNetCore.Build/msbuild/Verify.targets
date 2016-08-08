@@ -2,6 +2,13 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Put targets attached to the 'Verify' phase of the Standard Lifecycle here. -->
   <PropertyGroup>
+    <VerifyDependsOn>
+      $(VerifyDependsOn);
+      VerifyNuGetPackages
+    </VerifyDependsOn>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageVerifierList>$([System.IO.Path]::Combine('$(RepositoryDir)', 'NuGetPackageVerifier.json'))</PackageVerifierList>
   </PropertyGroup>
   <Target Name="VerifyNuGetPackages" BeforeTargets="Verify">

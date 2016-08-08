@@ -11,7 +11,7 @@ if(!(Get-Command dotnet -ErrorAction SilentlyContinue)) {
 }
 
 $Projects = @(
-    "aspnet-build"
+    "Microsoft.AspNetCore.Build"
 )
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
@@ -26,6 +26,7 @@ pushd $RepoRoot
 try {
     & dotnet restore
     $Projects | ForEach-Object {
+        del -rec -for "$RepoRoot\src\$_\bin","$RepoRoot\src\$_\obj" -ErrorAction SilentlyContinue
         & dotnet publish "$RepoRoot\src\$_" --configuration $Configuration
     }
 } finally {
@@ -36,9 +37,10 @@ Write-Host -ForegroundColor Green "Preparing layout..."
 
 # Assemble the output
 $Artifacts = Join-Path $RepoRoot artifacts
-if(!(Test-Path $Artifacts)) {
-    mkdir $Artifacts | Out-Null
+if(Test-Path $Artifacts) {
+    del -rec -for $Artifacts
 }
+mkdir $Artifacts | Out-Null
 
 $OutputDir = Join-Path $Artifacts "layout"
 if(Test-Path $OutputDir) {
@@ -46,18 +48,21 @@ if(Test-Path $OutputDir) {
 }
 mkdir $OutputDir | Out-Null
 
+# Projects
+$Projects | ForEach-Object {
+    mkdir "$OutputDir\$_" | Out-Null
+    cp -rec "$RepoRoot\src\$_\bin\$Configuration\netcoreapp1.0\publish\*" "$OutputDir\$_"
+}
+
 # Launcher
 mkdir "$OutputDir\bin" | Out-Null
-cp "$PSScriptRoot\bin\aspnet-build.template.cmd" "$OutputDir\bin\aspnet-build.cmd"
-cp "$PSScriptRoot\bin\aspnet-build.template.sh" "$OutputDir\bin\aspnet-build"
+cp "$PSScriptRoot\bin\aspnet-build.cmd" "$OutputDir\bin\aspnet-build.cmd"
+cp "$PSScriptRoot\bin\aspnet-build.ps1" "$OutputDir\bin\aspnet-build.ps1"
+cp "$PSScriptRoot\bin\aspnet-build.sh" "$OutputDir\bin\aspnet-build"
 
 # DotNet CLI install scripts
 mkdir "$OutputDir\dotnet-install" | Out-Null
 cp "$PSScriptRoot\dotnet-install\*" "$OutputDir\dotnet-install"
-
-# aspnet-build
-mkdir "$OutputDir\aspnet-build" | Out-Null
-cp -rec "$RepoRoot\src\aspnet-build\bin\$Configuration\netcoreapp1.0\publish\*" "$OutputDir\aspnet-build"
 
 # init scripts
 mkdir "$OutputDir\init" | Out-Null
@@ -82,7 +87,3 @@ if(Test-Path $OutputFile) {
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($OutputDir, $OutputFile)
 Write-Host "Packaged tools to $OutputFile"
-
-Write-Host -ForegroundColor Green "Initializing compiled tools in-place for use in testing ..."
-
-& "$OutputDir\init\init-aspnet-build.ps1"
