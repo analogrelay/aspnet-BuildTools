@@ -1,0 +1,2 @@
+# Unignore the scripts/bin
+!bin/
