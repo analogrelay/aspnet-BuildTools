@@ -19,6 +19,7 @@
     </ItemGroup>
     <Exec
         Command="dotnet restore @(RestoreDirectories, ' ') $(DotNetRestore_Options)"
+        Condition="'@(RestoreDirectories)' != ''"
         WorkingDirectory="$(RepositoryDir)" />
   </Target>
 
