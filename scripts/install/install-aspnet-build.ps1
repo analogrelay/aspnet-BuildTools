@@ -117,7 +117,7 @@ function InstallFromUrl {
 
     $TempFile = Join-Path ([IO.Path]::GetTempPath()) $PackageFileName
     if(Test-Path $TempFile) {
-        del $TempFile
+        del -LiteralPath -Force $TempFile
     }
     Write-Host -ForegroundColor Green "Downloading ASP.NET Build Tools Package from $SourceUrl"
 
@@ -145,7 +145,7 @@ function InstallFromPackage($ETag) {
 
     # If we're here, we're definitely installing, so clean any previous versions
     if(Test-Path $InstallPath) {
-        del -rec -for $InstallPath
+        del -LiteralPath -rec -for $InstallPath
     }
 
     mkdir $InstallPath | Out-Null

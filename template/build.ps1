@@ -1,5 +1,6 @@
 $DefaultBuildToolsBranch = "dev"
 $DefaultInstallScriptUrl = "https://raw.githubusercontent.com/anurse/aspnet-BuildTools/dev/scripts/install/install-aspnet-build.ps1"
+$ErrorActionPreference = "Stop"
 
 $BuildToolsBranch = $env:ASPNETBUILD_TOOLS_BRANCH
 if(!$BuildToolsBranch) {
