@@ -112,11 +112,15 @@ fi
 [ -z $BRANCH ] && BRANCH="dev"
 
 cmd_list() {
-    die "not yet implemented"
+    if [ ! -e $INSTALLDIR ]; then
+        echo "No versions of the ASP.NET Build Tools are installed in '$INSTALLDIR'"
+    fi
+
+    ls -1 "$INSTALLDIR/branches"
 }
 
 cmd_get_path() {
-    die "not yet implemented"
+    echo "$INSTALLDIR/branches/$BRANCH"
 }
 
 _get_branch() {
