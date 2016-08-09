@@ -8,6 +8,9 @@ param(
 
     [Parameter(ParameterSetName="InstallFromFeed")]
     [string]$SourceFeed,
+    
+    [Parameter(ParameterSetName="InstallViaTrainfile")]
+    [string]$Trainfile,
 
     [Parameter(ParameterSetName="InstallFromFeed")]
     [Parameter(ParameterSetName="AddToPath")]
@@ -172,6 +175,15 @@ if($List) {
         InstallFromUrl
     } elseif($PSCmdlet.ParameterSetName -eq "InstallFromFeed") {
         $SourceUrl = "$SourceFeed/aspnet-build.$BuildToolsBranch.zip"
+        InstallFromUrl
+    } elseif($PSCmdlet.ParameterSetName -eq "InstallViaTrainfile") {
+        # Load the trainfile and find the URL for the build tools
+        if(!(Test-Path $Trainfile)) {
+            throw "Trainfile not found: $Trainfile"
+        }
+        $Trainfile = Convert-Path $Trainfile
+        $SourceUrl = cat $Trainfile | where { $_ -match "^BuildTools: (.*)$" } | foreach { $matches[1] }
+        Write-Host "Using build tools from Trainfile: $Trainfile"
         InstallFromUrl
     } else {
         throw "Not yet implemented"

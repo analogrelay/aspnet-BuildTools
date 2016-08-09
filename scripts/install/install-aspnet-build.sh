@@ -44,6 +44,7 @@ usage() {
     echo "  ${Ye}--source-feed${Rs} ${Ma}<PACKAGE_FEED>${Rs}        the base URL of the feed to install packages from"
     echo "  ${Ye}--source-url${Rs} ${Ma}<PACKAGE_URL>${Rs}          the URL of the package to install"
     echo "  ${Ye}--source-package${Rs} ${Ma}<PACKAGE_PATH>${Rs}     the local path to the pacakge to install"
+    echo "  ${Ye}--trainfile${Rs} ${Ma}<TRAINFILE>${Rs}             the path to a Trainfile to read the URL for the build tools from"
     echo "  ${Rd}NOTE${Rs}: only one of the ${Ye}--source-*${Rs} options can be provided."
     echo ""
     echo "OPTIONS"
@@ -60,19 +61,29 @@ while [ $# -gt 0 ]; do
         --source-url|-u)
             [ -z $SOURCE_PACKAGE ] || die "can't specify both --source-package and --source-url"
             [ -z $SOURCE_FEED ] || die "can't specify both --source-feed and --source-url"
+            [ -z $TRAINFILE ] || die "can't specify both --trainfile and --source-url"
             SOURCE_URL=$2
             shift
             ;;
         --source-package|-p)
             [ -z $SOURCE_FEED ] || die "can't specify both --source-feed and --source-package"
             [ -z $SOURCE_URL ] || die "can't specify both --source-url and --source-package"
+            [ -z $TRAINFILE ] || die "can't specify both --trainfile and --source-package"
             SOURCE_PACKAGE=$2
             shift
             ;;
         --source-feed|-f)
             [ -z $SOURCE_PACKAGE ] || die "can't specify both --source-package and --source-feed"
             [ -z $SOURCE_URL ] || die "can't specify both --source-url and --source-feed"
+            [ -z $TRAINFILE ] || die "can't specify both --trainfile and --source-feed"
             SOURCE_FEED=$2
+            shift
+            ;;
+        --trainfile|-t)
+            [ -z $SOURCE_PACKAGE ] || die "can't specify both --source-package and --trainfile"
+            [ -z $SOURCE_URL ] || die "can't specify both --source-url and --trainfile"
+            [ -z $SOURCE_FEED ] || die "can't specify both --source-feed and --trainfile"
+            TRAINFILE=$2
             shift
             ;;
         --branch|-b)
@@ -219,6 +230,14 @@ cmd_install() {
     if [ ! -z "$SOURCE_PACKAGE" ]; then
         _install_package
     elif [ ! -z "$SOURCE_URL" ]; then
+        _install_url
+    elif [ ! -z "$TRAINFILE" ]; then
+        if [ ! -e "$TRAINFILE" ]; then
+            die "Trainfile not found: $TRAINFILE"
+        fi
+
+        SOURCE_URL=$(cat "$TRAINFILE" | grep "^BuildTools:" | cut -d ':' -f 2- | tr -d ' \r\n')
+        echo "Using Trainfile: $TRAINFILE"
         _install_url
     elif [ ! -z "$SOURCE_FEED"]; then
         _install_feed

@@ -23,8 +23,19 @@ if(!(Test-Path $InstallScript))
     iwr $InstallScriptUrl -OutFile $InstallScript
 }
 
-# Ensure the latest build tools are available
-& "$InstallScript" -BuildToolsBranch $BuildToolsBranch
+# Look for a trainfile
+$Trainfile = Join-Path $PSScriptRoot "Trainfile"
+$Repofile = Join-Path $PSScriptRoot "Repofile"
+if(Test-Path $Trainfile) {
+    # Use the trainfile to install the latest tools
+    & "$InstallScript" -Trainfile $Trainfile
+} elseif(Test-Path $Repofile) {
+    # Use the repofile to install the latest tools
+    & "$InstallScript" -Trainfile $Repofile
+} else {
+    # Use the specified (or default) branch
+    & "$InstallScript" -BuildToolsBranch $BuildToolsBranch
+}
 
 # Get the Path
 $BuildToolsPath = & "$InstallScript" -GetPath -BuildToolsBranch $BuildToolsBranch

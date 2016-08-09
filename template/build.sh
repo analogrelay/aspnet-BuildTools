@@ -25,7 +25,15 @@ if [ ! -e "$INSTALL_SCRIPT" ]; then
     curl -sSL -o "$INSTALL_SCRIPT" "$ASPNETBUILD_TOOLS_INSTALL_SCRIPT_URL"
 fi
 
-"$INSTALL_SCRIPT" --branch "$ASPNETBUILD_TOOLS_BRANCH"
+TRAINFILE="$DIR/Trainfile"
+REPOFILE="$DIR/Repofile"
+if [ -e "$TRAINFILE" ]; then
+    "$INSTALL_SCRIPT" --trainfile "$TRAINFILE"
+elif [ -e "$REPOFILE" ]; then
+    "$INSTALL_SCRIPT" --trainfile "$REPOFILE"
+else
+    "$INSTALL_SCRIPT" --branch "$ASPNETBUILD_TOOLS_BRANCH"
+fi
 
 BUILD_TOOLS_PATH=$("$INSTALL_SCRIPT" --get-path --branch "$ASPNETBUILD_TOOLS_BRANCH")
 
