@@ -12,6 +12,11 @@ if [ -e "$BUILD_TOOLS_ROOT/.initialized" ]; then
     echo "ASP.NET Build Tools are already initialized!"
 else
     echo "Initializing ASP.NET Build Tools..."
+
+    # Set execute flags
+    find "$BUILD_TOOLS_ROOT" -name "*.sh" -type f | xargs chmod a+x
+    find "$BUILD_TOOLS_ROOT/bin" ! -name "*.cmd" ! -name "*.ps1" -type f | xargs chmod a+x
+
     DOTNET_INSTALL_DIR="$BUILD_TOOLS_ROOT/dotnet-cli"
     if [ ! -d $DOTNET_INSTALL_DIR ]; then
         mkdir $DOTNET_INSTALL_DIR
