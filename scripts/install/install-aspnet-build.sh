@@ -12,6 +12,7 @@ Wh=$(tput setaf 7)
 Rs=$Wh
 
 DEFAULT_SOURCE_FEED="https://anurseaspnetbuildtools.blob.core.windows.net/aspnetbuildpackages"
+INSTALLATION_ROOT="$HOME/.aspnet-build"
 
 ARG0=$0
 
@@ -32,13 +33,13 @@ usage() {
     echo "  ${Cy}$ARG0${Rs} [${Ye}--install${Rs}] [${Ye}--source-feed${Rs} ${Ma}<PACKAGE_FEED>${Rs}] [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}] [${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}]"
     echo "  ${Cy}$ARG0${Rs} [${Ye}--install${Rs}] ${Ye}--source-package${Rs} ${Ma}<PACKAGE_PATH>${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}] [${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}]"
     echo "  ${Cy}$ARG0${Rs} [${Ye}--install${Rs}] ${Ye}--source-url${Rs} ${Ma}<PACKAGE_URL>${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}] [${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}]"
-    echo "  ${Cy}$ARG0${Rs} ${Ye}--list${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}] [${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}]"
-    echo "  ${Cy}$ARG0${Rs} ${Ye}--get-path${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}] [${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}]"
+    echo "  ${Cy}$ARG0${Rs} ${Ye}--list${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}]"
+    echo "  ${Cy}$ARG0${Rs} ${Ye}--get-path${Rs} [${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}]"
     echo ""
     echo "COMMANDS"
     echo "  ${Ye}--install${Rs}       install the ASP.NET Build Tools (this is the default command)"
-    echo "  ${Ye}--list${Rs}          list installed branches of the ASP.NET Build Tools"
-    echo "  ${Ye}--get-path${Rs}      gets the path to the root of the active ASP.NET Build Tools install"
+    echo "  ${Ye}--list${Rs}          list installed branches of the ASP.NET Build Tools in the default installation root (~/.aspnet-build)"
+    echo "  ${Ye}--get-path${Rs}      gets the path to the root of the active ASP.NET Build Tools install in the default installation root (~/.aspnet-build)"
     echo ""
     echo "SOURCE OPTIONS (for ${Ye}--install${Rs} only)"
     echo "  ${Ye}--source-feed${Rs} ${Ma}<PACKAGE_FEED>${Rs}        the base URL of the feed to install packages from"
@@ -49,7 +50,7 @@ usage() {
     echo ""
     echo "OPTIONS"
     echo "  ${Ye}--branch${Rs} ${Ma}<BRANCH>${Rs}                   the branch of the ASP.NET Build Tools to use as the active branch (for ${Ye}--install${Rs} and ${Ye}--get-path${Rs})"
-    echo "  ${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}          the root installation directory for ASP.NET Build Tools (default: ~/.aspnet-build)"
+    echo "  ${Ye}--install-dir${Rs} ${Ma}<INSTALLDIR>${Rs}          the directory in which to install the tools (for ${Ye}--install${Rs} only)"
 }
 
 while [ $# -gt 0 ]; do
@@ -100,10 +101,12 @@ while [ $# -gt 0 ]; do
             ;;
         --list|-l)
             [ -z $CMD ] || die "specified multiple commands: --$CMD and --list"
+            [ -z $INSTALLDIR ] || die "--install-dir cannot be specified with --list"
             CMD="list"
             ;;
         --get-path)
             [ -z $CMD ] || die "specified multiple commands: --$CMD and --get-path"
+            [ -z $INSTALLDIR ] || die "--install-dir cannot be specified with --get-path"
             CMD="get-path"
             ;;
         *)
@@ -119,19 +122,18 @@ if ! type -p unzip >/dev/null 2>/dev/null; then
 fi
 
 [ -z $CMD ] && CMD="install"
-[ -z $INSTALLDIR ] && INSTALLDIR="$HOME/.aspnet-build"
 [ -z $BRANCH ] && BRANCH="dev"
 
 cmd_list() {
-    if [ ! -e $INSTALLDIR ]; then
-        echo "No versions of the ASP.NET Build Tools are installed in '$INSTALLDIR'"
+    if [ ! -e $INSTALLATION_ROOT ]; then
+        echo "No versions of the ASP.NET Build Tools are installed in '$INSTALLATION_ROOT'"
     fi
 
-    ls -1 "$INSTALLDIR/branches"
+    ls -1 "$INSTALLATION_ROOT/branches"
 }
 
 cmd_get_path() {
-    echo "$INSTALLDIR/branches/$BRANCH"
+    echo "$INSTALLATION_ROOT/branches/$BRANCH"
 }
 
 _get_branch() {
@@ -139,7 +141,11 @@ _get_branch() {
 }
 
 _get_install_path() {
-    echo "$INSTALLDIR/branches/$1"
+    if [ ! -z "$INSTALLDIR" ]; then
+        echo "$INSTALLDIR"
+    else
+        echo "$INSTALLATION_ROOT/branches/$1"
+    fi
 }
 
 _install_package() {

@@ -1,3 +1,27 @@
+<#
+.SUMMARY
+    Installs the ASP.NET Build tools
+.PARAMETER SourceUrl
+    The URL from which to install the Build Tools
+.PARAMETER SourcePackage
+    The local path to the package from which to install the Build Tools
+.PARAMETER SourceFeed
+    The base URL of a feed containing Build Tools
+.PARAMETER Trainfile
+    The path to a Trainfile or Repofile specifying the build tools URL to install from
+.PARAMETER BuildToolsBranch
+    The branch to use when installing from a feed, or retrieving the path of a build tools package
+.PARAMETER InstallationDirectory
+    The directory in which to install the build tools (tools are installed directly into this directory and the directory is cleaned before installation)
+.PARAMETER List
+    Set this switch to list available build tools in the installation root
+.PARAMETER AddToPath
+    Set this switch to add the specified branch of the build tools to the PATH
+.PARAMETER CleanPath
+    Set this switch to clean all build tools off the current PATH
+.PARAMETER GetPath
+    Set this switch to return the path to the specified build tools branch
+#>
 [CmdletBinding(DefaultParameterSetName="InstallFromFeed")]
 param(
     [Parameter(ParameterSetName="InstallFromUrl", Mandatory=$true)]
@@ -17,6 +41,10 @@ param(
     [Parameter(ParameterSetName="GetPath")]
     [string]$BuildToolsBranch,
 
+    [Parameter(ParameterSetName="InstallFromUrl")]
+    [Parameter(ParameterSetName="InstallFromPackage")]
+    [Parameter(ParameterSetName="InstallFromFeed")]
+    [Parameter(ParameterSetName="InstallViaTrainfile")]
     [string]$InstallationDirectory,
 
     [Parameter(ParameterSetName="List", Mandatory=$true)]
@@ -44,21 +72,14 @@ if($SourceFeed.EndsWith("/")) {
     $SourceFeed = $SourceFeed.Substring(0, $SourceFeed.Length - 1)
 }
 
-if(!$InstallationDirectory) {
-    $InstallationDirectory = Join-Path $env:LOCALAPPDATA "Microsoft"
-    $InstallationDirectory = Join-Path $InstallationDirectory "aspnet-build"
-}
+$InstallationRoot = Join-Path (Join-Path $env:LOCALAPPDATA "Microsoft") "aspnet-build"
 
 if(!$BuildToolsBranch) {
     $BuildToolsBranch = "dev"
 }
 
 function DoList() {
-    if(!(Test-Path $InstallationDirectory)) {
-        "No versions of ASP.NET Build are installed in '$InstallationDirectory'"
-    }
-
-    dir "$InstallationDirectory\branches" | ForEach-Object { $_.Name }
+    dir "$InstallationRoot\branches" | ForEach-Object { $_.Name }
 }
 
 function AddToPath() {
@@ -72,7 +93,11 @@ function CleanPath() {
 }
 
 function GetInstallPath($Branch) {
-    Join-Path (Join-Path $InstallationDirectory "branches") $Branch
+    if($InstallationDirectory) {
+        $InstallationPath
+    } else {
+        Join-Path (Join-Path $InstallationRoot "branches") $Branch
+    }
 }
 
 function GetBranch($PackageFileName)
