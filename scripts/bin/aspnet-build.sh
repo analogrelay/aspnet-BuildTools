@@ -9,9 +9,9 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 PARENT="$( cd -P "$DIR/.." && pwd)"
 
 DOTNET="$PARENT/dotnet-cli/dotnet"
-DEFAULT_MAKEFILE="$PARENT/"
+DEFAULT_MAKEFILE="$PARENT/Microsoft.AspNetCore.Build/msbuild/DefaultMakefile.proj"
 
-if [ ! -d "$DOTNET" ]; then
+if [ ! -e "$DOTNET" ]; then
     echo "error: Tools have not been initialized yet. Run the init-aspnet-build.sh script in the build tools." 1>&2
     exit 1
 fi 

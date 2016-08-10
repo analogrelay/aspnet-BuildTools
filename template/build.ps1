@@ -27,15 +27,20 @@ if(!(Test-Path $InstallScript))
 # Look for a trainfile
 $Trainfile = Join-Path $PSScriptRoot "Trainfile"
 $Repofile = Join-Path $PSScriptRoot "Repofile"
-if(Test-Path $Trainfile) {
-    # Use the trainfile to install the latest tools
-    & "$InstallScript" -Trainfile $Trainfile
-} elseif(Test-Path $Repofile) {
-    # Use the repofile to install the latest tools
-    & "$InstallScript" -Trainfile $Repofile
-} else {
-    # Use the specified (or default) branch
-    & "$InstallScript" -BuildToolsBranch $BuildToolsBranch
+try {
+    if(Test-Path $Trainfile) {
+        # Use the trainfile to install the latest tools
+        & "$InstallScript" -Trainfile $Trainfile
+    } elseif(Test-Path $Repofile) {
+        # Use the repofile to install the latest tools
+        & "$InstallScript" -Trainfile $Repofile
+    } else {
+        # Use the specified (or default) branch
+        & "$InstallScript" -BuildToolsBranch $BuildToolsBranch
+    }
+} catch {
+    # Unwrap the inner error
+    throw $error[0]
 }
 
 # Get the Path

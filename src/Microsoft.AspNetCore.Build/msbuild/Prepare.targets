@@ -5,8 +5,6 @@
     <PrepareDependsOn>
       $(PrepareDependsOn);
       DotNetRestore;
-      NpmRestore;
-      BowerRestore;
       CleanPreviousBuildOutput
     </PrepareDependsOn>
   </PropertyGroup>
@@ -21,18 +19,6 @@
         Command="dotnet restore @(RestoreDirectories, ' ') $(DotNetRestore_Options)"
         Condition="'@(RestoreDirectories)' != ''"
         WorkingDirectory="$(RepositoryDir)" />
-  </Target>
-
-  <Target Name="NpmRestore" Condition="'$(NpmRestore)' != 'skip' And '@(NpmDirs)' != ''">
-    <Exec
-      Command="npm install $(NpmRestore_Options)"
-      WorkingDirectory="%(NpmDirs.RootDir)%(NpmDirs.Directory)" />
-  </Target>
-
-  <Target Name="BowerRestore" Condition="'$(BowerRestore)' != 'skip' And '@(BowerDirs)' != ''">
-    <Exec
-      Command="bower install $(BowerRestore_Options)"
-      WorkingDirectory="%(BowerDirs.RootDir)%(BowerDirs.Directory)" />
   </Target>
 
   <!--
